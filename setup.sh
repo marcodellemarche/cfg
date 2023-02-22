@@ -3,7 +3,21 @@ set -e
 
 echo "1. Checking out cfg repository"
 
-git clone --bare https://github.com/marcodellemarche/cfg.git $HOME/.cfg
+if [ -d $HOME/.cfg ]; then
+    echo "1.1 Directory $HOME/.cfg exists"
+    cd $HOME/.cfg
+    remote=$(git remote -v | head -n 1 | awk -F ' ' '{print $2}')
+
+    if [ "$remote" = "https://github.com/marcodellemarche/cfg.git" ]; then
+        echo "1.2 Directory already contains the repo"
+    else
+        echo "Directory $HOME/.cfg is either not a repo or the wrong one"
+	exit 1
+    fi
+else
+    echo "1.1 Directory $HOME/.cfg is empty, cloning repo"
+    git clone --bare https://github.com/marcodellemarche/cfg.git $HOME/.cfg
+fi
 
 function config {
     /usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME $@
@@ -24,11 +38,11 @@ config submodule update --init
 
 echo "3. Cloning custom ZSH things into .oh-my-zsh folder"
 
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone https://github.com/unixorn/fzf-zsh-plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-zsh-plugin
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k || true
+git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z || true
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions || true
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting || true
+git clone https://github.com/unixorn/fzf-zsh-plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-zsh-plugin || true
 
 echo "4. Installing ZSH via APT"
 
@@ -121,7 +135,7 @@ if ! [ -x "$(command -v cargo)" ] && ! [ -x "$(command -v rustc)" ]; then
 
     echo -e "\tRust and Cargo successfully installed"
 else
-    echo -e "\tSkipping because something is already installed"
+    echo -e "\tRust (or Cargo) already installed"
 fi
 
 echo "6.6. Node and N"
@@ -135,7 +149,7 @@ if ! [ -x "$(command -v node)" ]; then
 
     echo -e "\Node and N successfully installed"
 else
-    echo -e "\tSkipping because Node is already installed"
+    echo -e "\tNode already installed"
 fi
 
 echo "6.7. fzf"
@@ -143,9 +157,11 @@ echo "6.7. fzf"
 
 
 if ! [ -x "$(command -v fzf)" ]; then
-    .fzf/install --bin
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+
+    ~/.fzf/install --bin
 
     echo -e "\Node and N successfully installed"
 else
-    echo -e "\tSkipping because Node is already installed"
+    echo -e "\tfzf already installed"
 fi
