@@ -3,24 +3,24 @@ set -e
 
 echo "1. Checking out cfg repository"
 
-if [ -d $HOME/.cfg ]; then
-    echo "1.1 Directory $HOME/.cfg exists"
-    cd $HOME/.cfg
+if [ -d "$HOME"/.cfg ]; then
+    echo "1.1 Directory "$HOME"/.cfg exists"
+    cd "$HOME"/.cfg
     remote=$(git remote -v | head -n 1 | awk -F ' ' '{print $2}')
 
     if [ "$remote" = "https://github.com/marcodellemarche/cfg.git" ]; then
         echo "1.2 Directory already contains the repo"
     else
-        echo "Directory $HOME/.cfg is either not a repo or the wrong one"
+        echo "Directory "$HOME"/.cfg is either not a repo or the wrong one"
 	exit 1
     fi
 else
-    echo "1.1 Directory $HOME/.cfg is empty, cloning repo"
-    git clone --bare https://github.com/marcodellemarche/cfg.git $HOME/.cfg
+    echo "1.1 Directory "$HOME"/.cfg is empty, cloning repo"
+    git clone --bare https://github.com/marcodellemarche/cfg.git "$HOME"/.cfg
 fi
 
 function config {
-    /usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME $@
+    /usr/bin/git --git-dir="$HOME"/.cfg/ --work-tree="$HOME" $@
 }
 
 # Checking out repo files
@@ -38,7 +38,7 @@ config submodule update --init
 
 echo "3. Cloning custom ZSH things into .oh-my-zsh folder"
 
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k || true
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-"$HOME"/.oh-my-zsh/custom}/themes/powerlevel10k || true
 git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z || true
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions || true
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting || true
